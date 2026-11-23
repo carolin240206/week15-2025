@@ -1,69 +1,79 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 
-export default function Home() {
+export default async function Home() {
+  const posts = await prisma.post.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
+    <main
+      style={{
+        maxWidth: "900px",
+        margin: "50px auto",
+        padding: "20px",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "35px",
+        }}
+      >
+        <h1>My Blog</h1>
+
+        <Link
+          href="/create"
+          style={{
+            backgroundColor: "#2563eb",
+            color: "white",
+            padding: "12px 18px",
+            borderRadius: "8px",
+            textDecoration: "none",
+          }}
+        >
+          + Create Post
+        </Link>
+      </header>
+
+      <h2>Daftar Artikel</h2>
+
+      {posts.length === 0 ? (
+        <p>Belum ada artikel. Silakan buat artikel pertama kamu!</p>
+      ) : (
+        <div>
+          {posts.map((post) => (
+            <article
+              key={post.id}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: "10px",
+                padding: "20px",
+                marginBottom: "15px",
+              }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <h3>{post.title}</h3>
+
+              <p>{post.content}</p>
+
+              <small>
+                {new Date(post.createdAt).toLocaleDateString("id-ID")}
+              </small>
+
+              <div style={{ marginTop: "15px" }}>
+                <Link href={`/post/${post.id}`}>
+                  Lihat Detail →
+                </Link>
+              </div>
+            </article>
+          ))}
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+    </main>
   );
 }
